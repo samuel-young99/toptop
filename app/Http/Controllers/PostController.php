@@ -18,7 +18,8 @@ class PostController extends Controller
      */
     public function dashboard() {
         $posts = Post::all();
-        return view('dashboard', compact('posts'));
+        return view('dashboard', [
+            'posts' => $posts]);
     }
     // Display home page
     public function home(): View
@@ -31,8 +32,8 @@ class PostController extends Controller
     }
     // Display the post index page
     public function index() {
-        $posts = Post::latest()->paginate(6); // Use paginate() instead of all()
-        $recentPosts = Post::latest()->skip(6)->take(5)->get(); // Keep recent posts
+        $posts = Post::latest()->paginate(3); // Use paginate() instead of all()
+        $recentPosts = Post::latest()->skip(4)->take(3)->get(); // Keep recent posts
         return view('home', compact('posts', 'recentPosts'));
     }
     
@@ -71,7 +72,9 @@ class PostController extends Controller
 
    
     public function show(Post $post) {
-        return view('posts.show', compact('post'));
+        $posts = Post::latest();
+        $recentPosts = Post::latest()->skip(4)->take(3)->get();
+        return view('posts.show', compact('post', 'recentPosts'));
     }
 
     /**
@@ -79,47 +82,36 @@ class PostController extends Controller
      */
     public function create(): View
     {
-       
-
         return view('posts.create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
-    {
-        // Get the data from the request
+   
+    public function store(Request $request) {
+        $request->validate([
+            'title' => 'required',
+            'content' => 'required',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        ]);
         $title = $request->input('title');
         $content = $request->input('content');
-
-      
-
-        // Create a new Post instance and put the requested data to the corresponding column
+        $imagePath = $request->file('image') ? $request->file('image')->store('images', 'public') : null;
         $post = new Post();
         $post->title = $title;
         $post->content = $content;
-        
+        $post->image = $imagePath ?? 'default.jpg';
 
-        
-
-        // Set user
         $user = Auth::user();
         $post->user()->associate($user);
 
-        
-
-        // Save post
         $post->save();
 
-       
-
-        return redirect()->route('posts.index');
+        return redirect()->route('dashboard')->with('success', 'Post created successfully!');
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
+    
+  
     public function edit(string $id): View
     {
         $posts = Post::all()->find($id);
@@ -141,7 +133,7 @@ class PostController extends Controller
         // Get the data from the request
         $title = $request->input('title');
         $content = $request->input('content');
-
+        // $imagePath = $request->file('image') ? $request->file('image')->store('images', 'public') : null;
        
 
         // Update post info
@@ -163,7 +155,7 @@ class PostController extends Controller
         
 
 
-        return redirect()->route('posts.index');
+        return redirect()->route('dashboard');
     }
 
     /**
@@ -175,6 +167,6 @@ class PostController extends Controller
 
         $post->delete();
 
-        return redirect()->route('posts.index');
+        return redirect()->route('dashboard');
     }
 }
