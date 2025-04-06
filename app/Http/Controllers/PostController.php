@@ -16,16 +16,15 @@ class PostController extends Controller
     /**
      * Display the admin dashboard page
      */
-    public function dashboard() {
+   
+    public function dashboard():View {
         $posts = Post::all();
-        return view('dashboard', [
-            'posts' => $posts]);
+        return view('dashboard',compact('posts'));
     }
     // Display home page
     public function home(): View
     {
         $posts = Post::all();
-         
         return view('home', [
             'posts' => $posts
         ]);
@@ -33,27 +32,20 @@ class PostController extends Controller
     // Display the post index page
     public function index() {
         $posts = Post::latest()->paginate(3); // Use paginate() instead of all()
-        $recentPosts = Post::latest()->skip(4)->take(3)->get(); // Keep recent posts
+        $recentPosts = Post::latest()->skip(3)->take(2)->get(); // Keep recent posts
         return view('home', compact('posts', 'recentPosts'));
     }
-    
-
     /**
      * Display requested post
-     */
+    */
     public function post(string $id): View
     {
         $posts = Post::find($id);
 
-        $related_posts = Post::where('title')->where('id', '!=', $posts->id)->take(3)->get();
+        $relatedPosts = Post::where('title')->where('id', '!=', $posts->id)->take(3)->get();
 
-        return view('post', [
-            'post' => $posts,
-            
-            'related_posts' => $related_posts
-        ]);
+        return view('posts.show', compact('posts'));
     }
-
     /**
      * Display search result
      */
@@ -133,28 +125,21 @@ class PostController extends Controller
         // Get the data from the request
         $title = $request->input('title');
         $content = $request->input('content');
-        // $imagePath = $request->file('image') ? $request->file('image')->store('images', 'public') : null;
+        $imagePath = $request->file('image') ? $request->file('image')->store('images', 'public') : null;
        
 
         // Update post info
         $post->title = $title;
         $post->content = $content;
-       
-
+        $post->imagePath = $imagePath;
         // Save the cover image (if updated)
-        if ($request->file('cover')) {
-            $path = $request->file('cover')->store('cover', 'public');
-            $post->cover = $path;
+        if ($request->file('image')) {
+            $imagePath = $request->file('image')->store('image', 'public');
+            $post->image = $imagePath;
         }
-
-       
-
         // Save post
         $post->save();
-
-        
-
-
+        // Redirect to the admin dashboard
         return redirect()->route('dashboard');
     }
 

@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
 // A list of posts based on search query
 Route::post('/search', [PostController::class, 'search'])->name('search');
 
+Route::get('/dash',function(){return view('dash');});
 //About Page
 Route::get('/about', function(){
     return view('about');

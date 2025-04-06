@@ -10,7 +10,7 @@
                         @foreach($posts as $post)
                             <div class="bg-white p-4 rounded-lg shadow-md">
                                 @if($post->image)
-                                    <img src="{{ asset('storage/' . $post->image) }}" class="w-full h-48 object-cover mb-4 rounded-lg">
+                                <img src="{{ url('storage/'.$post->image) }}" alt="" title=""style="width:30%; height:20%" class="object-cover mb-4 rounded-lg">
                                 @endif
                                 <h2 class="text-xl font-semibold">{{ $post->title }}</h2>
                                 <p class="text-gray-700">{{ Str::limit($post->content, 100) }}</p>
@@ -33,6 +33,7 @@
                         @endforeach
                     </div>
                 </div>
+                
             </div>
         </div>
        

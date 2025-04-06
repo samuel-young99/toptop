@@ -8,7 +8,8 @@
             <div class="postion-relative mb-3">
                 <div class="max-w-4xl mx-auto px-4">
                     @if($post->image)
-                        <img src="{{ asset('storage/' . $post->image) }}" class="w-full h-64 object-cover mb-4 rounded-lg">
+                    <img src="{{ url('storage/'.$post->image) }}" alt="" title=""style="width:30%; height:20%" class="object-cover mb-4 rounded-lg">
+                  
                     @endif
                     <h1 class="text-3xl font-bold mb-4">{{ $post->title }}</h1>
                     <p class="text-gray-700">{{ $post->content }}</p>
@@ -30,7 +31,10 @@
                     @endforeach
                 </div>
             </div>
+            
         </div>
     </div>
+   
 </div>
+
 @endsection
